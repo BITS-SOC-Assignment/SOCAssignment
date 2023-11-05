@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Access_To_Github</name>
+        <label>Access To Github</label>
+        <locationX>475</locationX>
+        <locationY>380</locationY>
+        <actionName>githubAccesss.Give Github Accesss</actionName>
+        <actionType>externalService</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>Username</name>
+            <value>
+                <elementReference>$Record.Github_Username__c</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>githubAccesss.Give Github Accesss</nameSegment>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+        <versionSegment>1</versionSegment>
+    </actionCalls>
+    <actionCalls>
+        <name>Delete_User_Access</name>
+        <label>Delete User Access</label>
+        <locationX>1219</locationX>
+        <locationY>312</locationY>
+        <actionName>DeleteUserGithubAccess.Remove Github User Access</actionName>
+        <actionType>externalService</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>Username</name>
+            <value>
+                <elementReference>$Record.Github_Username__c</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>DeleteUserGithubAccess.Remove Github User Access</nameSegment>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+        <versionSegment>1</versionSegment>
+    </actionCalls>
+    <actionCalls>
+        <name>Github_Access_to_Users</name>
+        <label>Github Access to Users</label>
+        <locationX>629</locationX>
+        <locationY>478</locationY>
+        <actionName>GiveGithubAccessToUsers.Give Github Access</actionName>
+        <actionType>externalService</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>Username</name>
+            <value>
+                <elementReference>$Record.GitHub_access_to_user__c</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>GiveGithubAccessToUsers.Give Github Access</nameSegment>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+        <versionSegment>1</versionSegment>
+    </actionCalls>
+    <apiVersion>59.0</apiVersion>
+    <decisions>
+        <description>Check if user access has to be removed or added.</description>
+        <name>Check_if_to_add_or_remove_user_access</name>
+        <label>Check if to add or remove user access</label>
+        <locationX>933</locationX>
+        <locationY>324</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Give_Github_access</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.GitHub_access_to_user__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Access_To_Github</targetReference>
+            </connector>
+            <label>Give Github access</label>
+        </rules>
+        <rules>
+            <name>Remove_github_access</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.GitHub_access_to_user__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Delete_User_Access</targetReference>
+            </connector>
+            <label>Remove github access</label>
+        </rules>
+    </decisions>
+    <description>This flow will be used to give and remove the github access from the user.</description>
+    <environments>Default</environments>
+    <interviewLabel>GitHub access to user {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>GitHub access to user</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>543</locationX>
+        <locationY>48</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>GitHub_access_to_user__c</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <object>Access_Management__c</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <scheduledPaths>
+            <connector>
+                <targetReference>Check_if_to_add_or_remove_user_access</targetReference>
+            </connector>
+            <pathType>AsyncAfterCommit</pathType>
+        </scheduledPaths>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>
